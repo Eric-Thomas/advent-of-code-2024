@@ -1,4 +1,4 @@
-with open("day1-data.txt", "r") as fp:
+with open("inputs/day1-data.txt", "r") as fp:
     list_1, list_2 = [], []
     for line in fp:
         distance1, distance2 = line.split()

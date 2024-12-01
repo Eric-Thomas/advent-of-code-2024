@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-with open("day1-data.txt", "r") as fp:
+with open("inputs/day1-data.txt", "r") as fp:
     count = defaultdict(int)
     left = []
     for line in fp:
