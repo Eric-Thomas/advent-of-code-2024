@@ -45,6 +45,23 @@ def rotate(direction):
     raise ValueError(f"direction must be in ['up', 'down', 'left', 'right']")
 
 
+def pos_in_original_grid(grid, guard_pos):
+    positions_visited = set([guard_pos])
+    direction = "up"
+    while True:
+        next_pos = get_next_pos(guard_pos, direction)
+        row, column = next_pos
+        if row < 0 or row >= len(grid) or column < 0 or column >= len(grid[0]):
+            print("Guard left the room")
+            print(f"Positions visited {len(positions_visited)}")
+            return positions_visited
+        if grid[row][column] == "#":
+            direction = rotate(direction)
+        elif grid[row][column] == ".":
+            positions_visited.add(next_pos)
+            guard_pos = next_pos
+
+
 def guard_walk(new_obstical_pos, grid):
     grid[new_obstical_pos[0]][new_obstical_pos[1]] = "#"
     global positions_that_cause_loop
@@ -67,14 +84,18 @@ def guard_walk(new_obstical_pos, grid):
             guard_pos = next_pos
 
 
-def process_function(row, column, grid, guard_start_pos):
-    if (row, column) != guard_start_pos and grid[row][column] == ".":
+def process_function(row, column, grid, guard_start_pos, valid_obstruction_positions):
+    if (
+        (row, column) in valid_obstruction_positions
+        and (row, column) != guard_start_pos
+        and grid[row][column] == "."
+    ):
         grid_copy = copy.deepcopy(grid)
         return guard_walk((row, column), grid_copy)
     return 0
 
 
-def thread_function(grid, guard_start_pos):
+def thread_function(grid, guard_start_pos, valid_obstruction_positions):
     ROWS = len(grid)
     COLS = len(grid[0])
     positions_that_cause_loop = 0
@@ -85,7 +106,12 @@ def thread_function(grid, guard_start_pos):
             for column in range(COLS):
                 futures.append(
                     executor.submit(
-                        process_function, row, column, grid, guard_start_pos
+                        process_function,
+                        row,
+                        column,
+                        grid,
+                        guard_start_pos,
+                        valid_obstruction_positions,
                     )
                 )
 
@@ -98,8 +124,11 @@ def thread_function(grid, guard_start_pos):
     return positions_that_cause_loop
 
 
+valid_obstruction_positions = pos_in_original_grid(grid, guard_start_pos)
 start_time = time.time()
-positions_that_cause_loop = thread_function(grid, guard_start_pos)
+positions_that_cause_loop = thread_function(
+    grid, guard_start_pos, valid_obstruction_positions
+)
 print(f"Positions that caused a loop: {positions_that_cause_loop}")
 end_time = time.time()
 elapsed_time = end_time - start_time
