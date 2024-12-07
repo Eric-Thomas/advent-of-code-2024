@@ -22,7 +22,7 @@ def dfs(i, test_value, operands, result):
     # Total number of operators should be number of operands -1
     # Ex: 2 operands will have 1 operator
     # 3 operands will have 2 operators
-    if i >= len(operands):
+    if i >= len(operands) or result > test_value:
         return False
 
     for operator in OPERATORS:
