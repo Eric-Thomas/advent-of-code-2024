@@ -140,6 +140,7 @@ def get_my_key_pad_presses(door_code):
     global COLD_ROBOT_POS
     my_key_presses = []
     for button in door_code:
+        print_keypads(DOOR_ROBOT_POS, RADIATION_ROBOT_POS, COLD_ROBOT_POS)
         cold_robot_key_presses = get_cold_robot_key_pad_presses(button)
         for key_press in cold_robot_key_presses:
             current_key_presses = get_key_presses_to_directional_key_pad_target_bfs(
@@ -147,7 +148,64 @@ def get_my_key_pad_presses(door_code):
             )
             COLD_ROBOT_POS = directional_button_to_pos(key_press)
             my_key_presses += current_key_presses + ["A"]
+
     return my_key_presses
+
+
+def print_door_keypad(robot_pos):
+    with open("temp.txt", "a") as fp:
+        fp.write("Door Keypad:\n")
+        for row in range(DOOR_KEY_PAD_ROWS):
+            for col in range(DOOR_KEY_PAD_COLUMNS):
+                if (row, col) == robot_pos:
+                    fp.write("D ")  # Mark Door Robot position
+                elif DOOR_KEY_PAD[row][col] is None:
+                    fp.write(" ")
+                else:
+                    fp.write(DOOR_KEY_PAD[row][col])
+            fp.write("\n")
+        fp.write("\n")
+
+
+def print_radiation_control_board(robot_pos):
+    with open("temp.txt", "a") as fp:
+        fp.write("Radiation Control Board:\n")
+        for row in range(DIRECTIONAL_KEY_PAD_ROWS):
+            for col in range(DIRECTIONAL_KEY_PAD_COLUMNS):
+                if (row, col) == robot_pos:
+                    fp.write("R ")  # Mark Radiation Robot position
+                elif DIRECTIONAL_KEY_PAD[row][col] is None:
+                    fp.write(" ")
+                else:
+                    fp.write(DIRECTIONAL_KEY_PAD[row][col])
+            fp.write("\n")
+        fp.write("\n")
+
+
+def print_cold_control_board(robot_pos):
+    with open("temp.txt", "a") as fp:
+        fp.write("Cold Control Board:\n")
+        for row in range(DIRECTIONAL_KEY_PAD_ROWS):
+            for col in range(DIRECTIONAL_KEY_PAD_COLUMNS):
+                if (row, col) == robot_pos:
+                    fp.write("C ")  # Mark Cold Robot position
+                elif DIRECTIONAL_KEY_PAD[row][col] is None:
+                    fp.write(" ")  # Empty space
+                else:
+                    fp.write(DIRECTIONAL_KEY_PAD[row][col])
+            fp.write("\n")
+        fp.write("\n")
+
+
+def print_keypads(door_robot_pos, radiation_robot_pos, cold_robot_pos):
+    with open("temp.txt", "a") as fp:
+        fp.write("-" * 30)
+        fp.write("\n")
+        print_door_keypad(door_robot_pos)
+        print_radiation_control_board(radiation_robot_pos)
+        print_cold_control_board(cold_robot_pos)
+        fp.write("-" * 30)
+        fp.write("\n")
 
 
 DOOR_KEY_PAD_ACTIVATE_POS = get_door_key_pad_activate_pos()
